@@ -191,6 +191,20 @@ describe('containsVariable', () => {
   `('when called with value:$value then result should be:$expected', ({ value, expected }) => {
     expect(containsVariable(value, 'var')).toEqual(expected);
   });
+
+  it('does not match a format specifier that shares the searched name', () => {
+    expect(containsVariable('[[other:csv]]', 'csv')).toBe(false);
+    expect(containsVariable('${other:json}', 'json')).toBe(false);
+  });
+
+  it('does not match a field path that shares the searched name', () => {
+    expect(containsVariable('${other.host}', 'host')).toBe(false);
+    expect(containsVariable('${other.host:raw}', 'raw')).toBe(false);
+  });
+
+  it('still matches the variable when its name also appears as a format on another variable', () => {
+    expect(containsVariable('${other:json} ${json}', 'json')).toBe(true);
+  });
 });
 
 describe('getVariablesFromUrl', () => {
